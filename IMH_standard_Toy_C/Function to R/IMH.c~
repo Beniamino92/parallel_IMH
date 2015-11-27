@@ -1,0 +1,21 @@
+#include <stdio.h>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
+
+#include "minimum.h"
+#include "r_unif.h"
+#include "r_cauchy.h"
+#include "eval_weights.h"
+
+void IMH (double* sample, int* size, double* start) 
+{
+  const gsl_rng_type* T;
+  gsl_rng* r;
+  T = gsl_rng_default;
+  r = gsl_rng_alloc(T);
+  
+  double* uniforms = (double*) malloc(size * sizeof(double));
+  double* proposed_values = (double*) malloc(size * sizeof(double));
+  double* weights = (double*) malloc(size * sizeof(double));
+  double alpha;

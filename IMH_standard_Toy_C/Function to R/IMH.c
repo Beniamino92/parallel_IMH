@@ -1,0 +1,49 @@
+#include <stdio.h>
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+
+
+#include "minimum.h"
+#include "r_unif.h"
+#include "r_cauchy.h"
+#include "eval_weights.h"
+
+void IMH (double* sample, int* size, double* start) 
+{
+  const gsl_rng_type* T;
+  gsl_rng* r;
+  T = gsl_rng_default;
+  r = gsl_rng_alloc(T);
+  
+  double* uniforms = (double*)malloc(*size * sizeof(double));
+  double* proposed_values = (double*)malloc(*size * sizeof(double));
+  double* weights = (double*)malloc(*size * sizeof(double));
+  double alpha;
+
+  int t;
+  
+  //Generating Uniforms[0,1].
+  r_unif(r, uniforms, *size);
+  //Generating proposal values from Cauchy.
+  r_cauchy(r, proposed_values, *size);
+  //Evaluating weights (Target(y_t)/Proposal(y_t))
+  eval_weights(weights, proposed_values, *size);
+
+  //Setting initial value
+  sample[0] = *start;
+
+  //Running Markov Chain
+  for(t = 1; t < *size; ++t) 
+    {
+      alpha = minimum(1.0, weights[t]/weights[t-1]);
+      sample[t] = (uniforms[t] <= alpha) ? proposed_values[t] : sample[t-1];
+    }
+  
+  free(uniforms);
+  free(proposed_values);
+  free(weights);
+  gsl_rng_free(r);
+
+}
+  
+
