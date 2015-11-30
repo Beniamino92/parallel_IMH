@@ -65,51 +65,62 @@ void serial_block_IMH(double x_0, size_t T, size_t p, size_t b)
 		}
 		x_start = x_chain[(i*(p))]; 
    		w_start = w_chain[(i*(p))];
+		
 		for(k = 0; k < p; k++){
 
-			// Accepting or rejecting the first step.
-			for(l = 0; l < p; l++) {
-				perm[l] = gsl_rng_uniform_int(r,(p));
-			printf("perm[%zu] = %d\n", l, perm[l]);
-			} 
-			if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[0]]/w_start))){
-				x_mat[k][(i*(p))+1] = x_prop[perm[0]];
-				w_mat[k][(i*(p))+1] = w_prop[perm[0]];
-			}
-			else{
-				x_mat[k][(i*(p))+1] = x_start;
-				w_mat[k][(i*(p))+1] = w_start;
-			}
-
-			//For each column in our block the MC.
-			for(m = 0; m < ((p)-1); ++m) {
-	      
-				if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[m+1]]/w_mat[k][((i*(p))+1+m)]))) {
-					x_mat[k][((i*(p))+2+m)] = x_prop[perm[m+1]];
-					w_mat[k][((i*(p))+2+m)] = w_prop[perm[m+1]];
-				}
-				else{
-					x_mat[k][((i*(p))+2+m)] = x_mat[k][((i*(p))+1+m)];
-					w_mat[k][((i*(p))+2+m)] = w_mat[k][((i*(p))+1+m)];
-				}
-			}
+		  // Accepting or rejecting the first step.
+		       
+		  //Generate random permutation using Knuth shuffle
+		  size_t n, q;
+		  for (n = 0; n < p; n++) {
+		    q = gsl_rng_uniform_int(r, (n+1)); //returns random int between 0 and n inclusive	      
+		    perm[n] = perm[q];		      
+		    perm[q] = n;
+		  }
+		  
+		  //Print the permutation
+		  for (l = 0; l < p; l++) {
+		    printf("perm[%zu] = %d\n", l, perm[l]);
+		  }
+		  
+		  if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[0]]/w_start))){
+		    x_mat[k][(i*(p))+1] = x_prop[perm[0]];
+		    w_mat[k][(i*(p))+1] = w_prop[perm[0]];
+		  }
+		  else{
+		    x_mat[k][(i*(p))+1] = x_start;
+		    w_mat[k][(i*(p))+1] = w_start;
+		  }
+		  
+		  //For each column in our block the MC.
+		  for(m = 0; m < ((p)-1); ++m) {
+		    
+		    if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[m+1]]/w_mat[k][((i*(p))+1+m)]))) {
+		      x_mat[k][((i*(p))+2+m)] = x_prop[perm[m+1]];
+		      w_mat[k][((i*(p))+2+m)] = w_prop[perm[m+1]];
+		    }
+		    else{
+		      x_mat[k][((i*(p))+2+m)] = x_mat[k][((i*(p))+1+m)];
+		      w_mat[k][((i*(p))+2+m)] = w_mat[k][((i*(p))+1+m)];
+		    }
+		  }
 		}
 		
 		j = gsl_rng_uniform_int(r,(p));
 		
 		for(l = 0; l < p; ++l){
-			x_chain[((i*(p))+1+l)] = x_mat[j][((i*(p))+1+l)];
-			w_chain[((i*(p))+1+l)] = w_mat[j][((i*(p))+1+l)];
+		  x_chain[((i*(p))+1+l)] = x_mat[j][((i*(p))+1+l)];
+		  w_chain[((i*(p))+1+l)] = w_mat[j][((i*(p))+1+l)];
 		}
 	}
-
+	
 	for(l = 0; l < (T+1); ++l) {
-		for(m = 0; m < p; ++m) {
-			printf("X[%zu][%zu]: %f, W[%zu][%zu]: %f \n", m, l, x_mat[m][l], m, l, w_mat[m][l]);
-			est += x_mat[m][l];
-		}
+	  for(m = 0; m < p; ++m) {
+	    printf("X[%zu][%zu]: %f, W[%zu][%zu]: %f \n", m, l, x_mat[m][l], m, l, w_mat[m][l]);
+	    est += x_mat[m][l];
+	  }
 	}
-
+	
 	printf("The estime is %f\n", est/((T+1)*p));
 }
   
@@ -119,7 +130,7 @@ void serial_block_IMH(double x_0, size_t T, size_t p, size_t b);
 int main() 
 {
   printf("Ciao Jack\n");
-  serial_block_IMH(1.0, 10, 2, 5);
+  serial_block_IMH(1.0, 20, 4, 5);
   return 0;
 }
 
