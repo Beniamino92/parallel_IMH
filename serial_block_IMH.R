@@ -1,5 +1,7 @@
-serial_block_IMH<-function(x0,T,pi,mu,samp,p,b){
-  #preparing where to store inputs and outputs
+serial_block_IMH<-function(x0,pi,mu,samp,p,b){
+ T<-p*b
+  
+   #preparing where to store inputs and outputs
   
   #all values used in estimator and corresponding weights
   x<-matrix(10,nrow=p,ncol=T+1)
@@ -63,7 +65,12 @@ serial_block_IMH<-function(x0,T,pi,mu,samp,p,b){
   return(list("X"=x,"Xchain"=xchain))
 }
 
-test2<-serial_block_IMH(1,T=1000,function(x) {dnorm(x,0,1)},function(y) {dnorm(y,0,2)},function(n) {rnorm(n,0,2)},p=100,b=10)
+test2<-serial_block_IMH(0,function(x) {0.3*dnorm(x,0,1)+0.7*dnorm(x,5,1)},
+                        function(y) {dcauchy(y)},function(n) {rcauchy(n)},p=100,b=100)
 test2$X
 plot(seq(1,1001),test2$Xchain,type="l")
 mean(test2$X)
+hist(test2$Xchain,breaks=30)
+
+system.time(serial_block_IMH(0,function(x) {0.3*dnorm(x,0,1)+0.7*dnorm(x,5,1)},
+                             function(y) {dcauchy(y)},function(n) {rcauchy(n)},p=100,b=1000))

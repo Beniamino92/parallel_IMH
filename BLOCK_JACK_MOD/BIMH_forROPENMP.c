@@ -1,15 +1,16 @@
 #include <stdio.h>
 #include <gsl/gsl_rng.h>
 #include <gsl/gsl_randist.h>
+#include <omp.h>
 
 #include "distributions.h"
 #include "minimum.h"
 
 //create .so file by
 
-// create shared file using R CMD SHLIB -lgsl -lgslcblas BIMH_forR.c distributions.c minimum.c  // 
+// create shared file using R CMD SHLIB -lgsl -lgslcblas BIMH_forROPENMP.c distributions.c minimum.c  // 
 
-void serial_block_IMH(double*  px_0, int*  pp, int*  pb, double (*x_mat)[((*pp)*(*pb))+1], double (*w_mat)[((*pp)*(*pb))+1], double* pest, double*  x_chain, double*  w_chain)
+void serial_block_IMH(double* restrict px_0, int* restrict pp, int* restrict pb, double (* restrict x_mat)[((*pp)*(*pb))+1], double (*  restrict w_mat)[((*pp)*(*pb))+1], double* restrict pest, double* restrict x_chain, double* restrict w_chain)
 {
   // initalising pointers
   double x_0;
@@ -53,7 +54,8 @@ void serial_block_IMH(double*  px_0, int*  pp, int*  pb, double (*x_mat)[((*pp)*
   }
   x_chain[0] = x_0;
   w_chain[0] = w_mat[0][0];
-  
+
+  #pragma omp for
   // Sampling the proposals and calculating their weights-parralelised.
   for(i = 0; i < T; i++){
     y[i] = random_proposal(r);
