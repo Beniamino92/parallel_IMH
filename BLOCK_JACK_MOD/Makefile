@@ -1,5 +1,5 @@
 CC=gcc
-CFLAGS=-I/usr/include/gsl
+CFLAGS=-I/usr/include/gsl -fopenmp
 LDFLAGS=-L/usr/local/lib
 LIBS=-lgsl -lgslcblas
 

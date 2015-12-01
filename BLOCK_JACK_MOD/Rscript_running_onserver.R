@@ -1,6 +1,6 @@
 getwd()
 setwd("/homes/jewson/MyDocuments/Module4/parallel_IMH/BLOCK_JACK_MOD")
-#setwd("data/greyheron/oxwasp/oxwasp15/jewson/BLOCK_JACK_MOD")
+
 
 serial_BIMH2 = function(x_start, p, b) {
   ans = .C("serial_block_IMH", as.double(x_start), as.integer(p), 
@@ -22,3 +22,14 @@ system.time(serial_BIMH2(0, 100, 1000))
 dyn.load("BIMH_forROPENMP.so")
 
 system.time(serial_BIMH2(0, 100, 1000)) 
+
+setwd("/homes/jewson/MyDocuments/Module4/parallel_IMH/Parallelising2")
+
+dyn.load("BIMH_forROpenMP2.so")
+
+system.time(serial_BIMH2(0, 100, 1000)) 
+
+test<-serial_BIMH2(0, 10, 10)
+test2<-serial_BIMH2(0, 100, 1000)
+
+hist(test2$MC,breaks=30)

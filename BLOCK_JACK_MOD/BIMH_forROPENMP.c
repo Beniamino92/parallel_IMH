@@ -5,12 +5,15 @@
 
 #include "distributions.h"
 #include "minimum.h"
+#include "timing.h"
 
 //create .so file by
 
 // create shared file using R CMD SHLIB -lgsl -lgslcblas BIMH_forROPENMP.c distributions.c minimum.c  // 
 
-void serial_block_IMH(double* restrict px_0, int* restrict pp, int* restrict pb, double (* restrict x_mat)[((*pp)*(*pb))+1], double (*  restrict w_mat)[((*pp)*(*pb))+1], double* restrict pest, double* restrict x_chain, double* restrict w_chain)
+void serial_block_IMH(double* restrict px_0, int* restrict pp, int* restrict pb,
+		      double (* restrict x_mat)[((*pp)*(*pb))+1], double (*  restrict w_mat)[((*pp)*(*pb))+1],
+		      double* restrict pest, double* restrict x_chain, double* restrict w_chain)
 {
   // initalising pointers
   double x_0;
@@ -55,12 +58,19 @@ void serial_block_IMH(double* restrict px_0, int* restrict pp, int* restrict pb,
   x_chain[0] = x_0;
   w_chain[0] = w_mat[0][0];
 
-  #pragma omp for
+  double t;
+  reset_and_start_timer();
+
+  #pragma omp parallel for
   // Sampling the proposals and calculating their weights-parralelised.
   for(i = 0; i < T; i++){
     y[i] = random_proposal(r);
     w[i] = distr_target(y[i])/distr_proposal(y[i]);	
   }
+  
+  t = get_elapsed_mcycles();
+  printf("\t\t[%.3f] million cycles\n", t);
+
   
   // For each block.
   for(i = 0; i < b; i++) {
