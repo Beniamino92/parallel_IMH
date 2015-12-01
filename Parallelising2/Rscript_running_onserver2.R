@@ -46,7 +46,7 @@ serial_BIMH3 = function(x_start, p, b) {
 
 dyn.load("BIMH_forROpenMP4.so")
 
-test2<-serial_BIMH3(0, 100, 100000)
+system.time(test2<-serial_BIMH3(0, 100, 100000))
 
 test2$est
 
@@ -57,10 +57,10 @@ length(test2$MC)
 test$MC
 
 grid = (-900:900)/100
-test<-serial_BIMH3(0, 100, 1000)
-hist(test2$MC, breaks=100, freq = F, col = "pink")
+hist(test2$MC, breaks=100, freq = F, col = "pink", ylim = c(0, 0.33))
 lines(grid, 0.3*dnorm(grid) + 0.7*dnorm(grid, 5), col = "blue", lwd = 3)
 lines(grid, dcauchy(grid), col = "green", lwd = 3, lty = 2)
 factor(test$MC)
+
 
 
