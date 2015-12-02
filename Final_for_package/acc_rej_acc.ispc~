@@ -1,0 +1,29 @@
+// export PATH=~/Downloads/ispc-v1.8.2-linux:$PATH
+// ispc -O3 --arch=x86-64 --target=avx acc_rej_acc.ispc -o acc_rej_acc.o -h acc_rej_acc.h
+
+export void acc_rej_ispc_start(uniform size_t p, uniform double x_mat[][p], uniform
+			       double w_mat[][p],
+			 uniform double x_prop[],  uniform double w_prop[],
+			 uniform double x_start[],  uniform double w_start[],
+			 uniform int perm[][p], uniform size_t k_[])
+{
+  struct RNGState r;
+  seed_rng(&r,10)
+  
+    foreach(i = 0 ... *k_)// i in 1:8
+    {
+      if(frandom(&r) <= minimum(1, (w_prop[perm[i][0]]/ *w_start))) {
+	  x_mat[i][1] = x_prop[perm[i][0]];
+	  w_mat[i][1] = w_prop[perm[i][0]];
+	}
+	else {
+	  x_mat[i][1] = *x_start;
+	  w_mat[i][1] = *w_start;
+	}
+    }
+}
+
+   
+  
+  
+    
