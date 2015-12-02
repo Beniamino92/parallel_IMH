@@ -1,0 +1,169 @@
+#include <gsl/gsl_rng.h>
+#include <gsl/gsl_randist.h>
+#include <omp.h>
+#include <stdio.h>
+
+#include "distributions.h"
+#include "minimum.h"
+#include "timing.h"
+
+
+// create shared file using R CMD SHLIB -lgsl -lgslcblas BIMH_forR....c distributions.c minimum.c 
+// make rows of matri be next to each other in vector
+void serial_block_IMH(double* restrict px_0, int* restrict pp, int* restrict pb,
+		      double * restrict x_mat, double *  restrict w_mat,
+		      double* restrict pest, double* restrict x_chain, double* restrict w_chain)
+{
+  // Initalising pointers.
+  double x_0;
+  size_t p, b;
+  x_0 = *px_0;
+  p = (size_t)*pp;
+  b = (size_t)*pb;
+  
+  //Length of the chain.
+  size_t T = p * b;
+  
+  // Placeholder for permutation.
+  int perm[p*p];
+  
+  // For each block of IMH.
+  double x_prop[p];
+  double w_prop[p];
+  
+  // Starting values.
+  double x_start;
+  double w_start;
+  
+  // Temporary for permutations.
+  size_t q[p];
+
+  //Estimate result.
+  double est = 0.0;
+
+  //Timers
+  double t_perm;
+  double t_acc_rej;
+  double t_proposal;
+  
+  // Initialisation.
+  for(size_t i = 0; i < p; i++) {
+    //was x_mat[i][0]
+    x_mat[0+p*i] = x_0; 
+    w_mat[0+p*i] = distr_target(x_0)/distr_proposal(x_0);
+  }
+  x_chain[0] = x_0;
+  w_chain[0] = w_mat[0];
+
+  
+  // For each block.
+  #pragma omp parallel 
+  {
+    //Set the random number generation.
+    const gsl_rng_type* T_;
+    gsl_rng* r;
+    T_ = gsl_rng_default;
+    r = gsl_rng_alloc(T_);
+    gsl_rng_set(r, omp_get_thread_num());
+    
+    for(size_t i = 0; i < b; i++) {
+      reset_and_start_timer();
+#pragma omp for reduction (+:t_proposal)
+      for(size_t l = 0; l < p; l++) {
+	// Sampling the proposals and calculating their weights (parallelised for that block).
+	x_prop[l] =  random_proposal(r);
+	w_prop[l] =  distr_target(x_prop[l])/distr_proposal(x_prop[l]);
+      }
+      t_proposal += get_elapsed_mcycles();
+      #pragma omp barrier
+
+      #pragma omp master
+     
+      {
+	x_start = x_chain[(i*(p))]; 
+	w_start = w_chain[(i*(p))];
+      }
+      
+      #pragma omp barrier
+
+      
+      // For each row of each block.
+      
+#pragma omp for reduction (+:t_perm) reduction (+:t_acc_rej)
+      for(size_t k = 0; k < p; k++) {
+
+
+	reset_and_start_timer();
+	
+	//Generate random permutation using Knuth shuffle 
+	for (size_t n = 0; n < p; n++) {
+	  q[k] = gsl_rng_uniform_int(r, (n+1)); //returns random int between 0 and n inclusive	      
+	  perm[n+p*k] = perm[q[k]+p*k];		      
+	  perm[q[k]+p*k] = n;
+	}
+
+	
+	t_perm += get_elapsed_mcycles();
+	
+
+
+	reset_and_start_timer();
+	
+	// Accepting or rejecting the first step.
+	if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[0+p*k]]/w_start))) {
+	  x_mat[1+p*k] = x_prop[perm[0+p*k]];
+	  w_mat[1+p*k] = w_prop[perm[0+p*k]];
+	}
+	else {
+	  x_mat[1+p*k] = x_start;
+	  w_mat[1+p*k] = w_start;
+	}
+ 
+	//For each column in our block the MC.
+	for(size_t m = 0; m < ((p)-1); m++) {
+	  if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[(m+1)+p*k]]/w_mat[(m+1)+p*k]))) {
+	    x_mat[(2+m)+p*k] = x_prop[perm[(m+1)+p*k]];
+	    w_mat[(2+m)+p*k] = w_prop[perm[(1+m)+p*k]];
+	  }
+	  else {
+	    x_mat[(2+m)+p*k] = x_mat[(1+m)+p*k];
+	    w_mat[(2+m)+p*k] = w_mat[(1+m)+p*k];
+	  }
+	}
+
+	t_acc_rej += get_elapsed_mcycles();
+
+      }
+      #pragma omp barrier
+     
+      #pragma omp master
+      {
+	size_t j = gsl_rng_uniform_int(r,(p));
+	
+	for(size_t l = 0; l < p; l++) {
+	  x_chain[((i*(p))+1+l)] = x_mat[(1+l)+j*p];
+	  w_chain[((i*(p))+1+l)] = w_mat[(1+l)+j*p];
+	}
+
+	for(size_t m = 0; m < p ; m++) {
+	  for(size_t l = 1; l < p+1; l++) {
+	    est += x_mat[l+p*m];
+	  }
+	}	
+      }
+      #pragma omp barrier
+      
+    }
+  }
+  printf("\t\t[%.3f] million cycles- To do all the permutations\n", t_perm);
+  printf("\t\t[%.3f] million cycles- To do all the accept reject steps\n", t_acc_rej);
+  printf("\t\t[%.3f] million cycles- To do all proposals \n", t_proposal);
+  est /= (T)*p;
+  *pest = est;
+}
+
+  
+    
+
+
+  
