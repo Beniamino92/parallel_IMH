@@ -1,0 +1,128 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[textwidth=16cm,textheight=24cm]{geometry}
+\usepackage{amsmath,hyperref,amsfonts,amssymb,color,graphicx,siunitx,fancyhdr,lastpage,enumerate}
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{proposition}[theorem]{Proposition}
+%\usepackage[caption = false]{subfig}
+\usepackage{float}
+\usepackage[english]{babel}
+\usepackage[utf8]{inputenc}
+\usepackage{caption,subcaption}
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+
+\title{Parallelising Block Independent Metropolis-Hastings}
+\date{2/12/15}
+\author{Jack Jewson, Beniamino Hadj-Amar, Andi Wang}
+\fancypagestyle{plain}
+
+
+\begin{document}
+%first page shouldn't be fancy, it cuts out the 4cm
+\pagestyle{fancy}
+\cfoot{\thepage\ of \pageref{LastPage}}
+
+%\vskip 4 true cm % Leave room for label
+
+\maketitle
+
+
+\section{Introduction}
+
+
+In general, it is difficult to parallelise Monte Carlo Markov chain methods due to the nature of Markov chains themselves; in order to move forwards we need up-to-date knowledge of the current state of the chain. This naturally leads to implementation that is serial, not parallel.
+
+The independent Metropolis-Hastings algorithm is a special case of the standard Metropolis-Hastings algorithm, whereby the the proposed values are independent of the current state of the chain. Hence, the particular proposals for a given realisation of the chain can be generated \textit{before} the chain has even begun running. It is this key fact that gives us hope to parallelise the independent Metropolis-Hastings algorithm.
+
+
+\section{Block Independent Metropolis-Hastings}
+
+Our main algorithm is based on the Block Independent Metropolis-Hastings (BIMH) presented in Jacob et al. (2011) \cite{Jacob}, with slight modifications; see below. We wish to generate a Markov chain of length $T$ to target some chosen density $\pi$ and to estimate $\mathbb{E}_\pi[h(X)]$ for some suitable function $h$. For a particular proposed value $y_t\sim\mu$, we write $w_t:=\pi(y_t)/\mu(y_t)$.
+
+\begin{algorithm}
+ 	\caption{BIMH}
+ 	\label{CHalgorithm}
+ 	\begin{algorithmic}[1]
+		\State Choose block size $p$ and number of blocks $b$ so $b*p=T$. 		
+ 		\State Set $x_0$ to some arbitrary value, compute $w_0=\pi(x_0)/\mu(x_0)$.
+ 		\State Set $x_{\text{start}} = x_0$, $w_{\text{start}} = w_0$.
+ 		\For{$i=1$ to $b$}
+		\State Generate new proposals $y_1, ..., y_p\sim\mu$.
+		\State Compute corresponding $w_1, ..., w_p$.
+		\For{$k=1$ to $p$}
+		\State Uniformly draw a new permutation $\sigma$ of $\{1, \dots, p\}$.
+		\State Shuffle the proposed values according to $\sigma$.
+ 		\State Run $p$ steps of independent MH given $(x_{\text{start}}, w_{\text{start}})$ and the (shuffled) proposed values and corresponding weights.
+ 		\State Save as $x_{(i-1)*p+1}^{(k)} , ...,x_{i*p}^{(k)}$ the resulting chain.
+ 		\EndFor
+ 		\State Draw index $j$ uniformly from $\{1,\dots,p\}$, set $x_{\text{start}} = x_{i*p}^{(j)}$, $w_{\text{start}}$ correspondingly; save $x_{(i-1)*p+1}^{(j)},\dots,x_{i*p}^{(j)}$ into $x_{(i-1)*p+1}^*,\dots,x_{i*p}^*$.
+		\EndFor 		
+ 	\end{algorithmic}
+ \end{algorithm}
+    
+
+The output of Algorithm 1 is $x_1^*,\dots, x_T^*$, a Markov chain of length $T$ targeting $\pi$. We estimate $\mathbb{E}_\pi[h(X)]$ using all values of the chain, by $$\hat{\tau} = \frac{1}{p*T} \sum_{k=1}^p \sum_{t=1}^T h(x_t^{(k)}).$$
+
+This algorithm is intended for cases when the most computationally expensive step is the evaluation of the target density in step 6. Note that once we have these values, in step 10 we need only calculate ratios; no more evaluations of densities are required. The output of Algorithm 1 gives a significant reduction in variance of the estimator $\hat{\tau}$ compared to an analogous estimator produced from a standard IMH run of $T$ steps. These two are comparable since in both cases we evaluate the target density $T$ times; the additional generation of uniforms and permutations in Algorithm 1 is assumed to be orders of magnitude faster.
+
+We can also parallelise Algorithm 1; we did so in step 6 when generating the proposals and calculating weights, and in steps 8 to 11, since the $p$ chains indexed by $k$ do not interact.
+
+Algorithm \ref{CHalgorithm} differs slightly to the BIMH described in \cite{Jacob} since we do not generate all proposals at the start and only save $p$ at a time, and do not store all $x$-values; we update our additive estimator over the course of the algorithm. This significantly reduces the memory requirements of the algorithm and speeds up computation time. However we have also coded the BIMH algorithm exactly as in \cite{Jacob}; see next section.
+
+\section{Package Contents}
+For the functions in our R package, Cauchy proposals are used to target a Gaussian mixture $0.3N(0,1)+0.7N(5,1)$. The C code to sample proposals and evaluate both densities are stored in `\textit{distributions.c}' which is called in all C functions, and these are also hard coded into the R function. 
+
+\begin{enumerate}
+\item{IMH\_mixNorm: a basic Independent Metropolis-Hastings algorithm.}
+\item{serial\_BIMH\_mixNorm\_R: a serial version of BIMH with proposals generated at the start, written entirely in R; incredibly slow.}
+\item{Paper\_serial\_BIMH\_mixNorm: a serial version of BIMH with proposals generated at the start, written in C; significantly faster than 2.}
+\item{ParallelProposal\_BIMH\_mixNorm: same as 3 except the proposals are generated at the start in parallel.}
+\item{GoodCaching\_serial\_BIMH\_mixNorm: serial version of Algorithm \ref{CHalgorithm} using localy generated proposals, written in C.}
+\item{FullParallel\_BIMH\_mixNorm: parallel version of Algorithm \ref{CHalgorithm}  using localy generated proposals, written in C.}
+\end{enumerate}
+
+More detailed descriptions can be found in the man folder of the package.
+
+\section{Examples}
+
+We present some examples to demonstrate some of the functions in this package; see Table \ref{tab1}. We took the function $h$ to be the identity, so we are estimating the mean. We calculated the variance by running the algorithm 100 times and looking at the variance of the mean estimates.
+
+\begin{table}[H]
+\centering
+
+\caption{Some timings and the variances of the Monte Carlo estimator of the mean.}
+\begin{tabular}{ | p{6.3cm} | p{5cm} | p{2.2cm} | }
+\hline
+    \textbf{Method} $p=100$, $b=1000$  & \textbf{System.time} & \textbf{Variance (where applicable)} \\ \hline
+    IMH\_mixNorm & user = 0.001, elapsed = 0.002 & 0.0182\\ \hline
+    Paper\_serial\_BIMH\_mixNorm & user = 0.601, elapsed =  0.630 & 0.000647\\ \hline
+    GoodCaching\_serial\_BIMH\_mixNorm & user = 0.311, elapsed = 0.310 & \\ \hline
+    ParallelProposal\_BIMH\_mixNorm & user = 0.657, elapsed = 0.640 & \\ \hline
+	FullParallel\_BIMH\_mixNorm & user = 0.791, elapsed = 0.102 & \\ \hline
+    serial\_BIMH\_MixNorm\_R & user = 77.78, elapsed = 77.82 & \\ \hline
+   
+\end{tabular}
+\label{tab1}
+\end{table}
+
+We see that using BIMH over standard IMH offers a substantial improvement of the variance. However in this case it requires a lot more time. This is because for our Cauchy/Gaussian example evaluating the densities is relatively straightforward, and the majority of the computational time is spent doing the rest of the algorithm; generating permutations and uniforms and performing accept-reject. In this case the parallelising does not offer any improvement on computational time, for the same reason. We do see also that the R version of the code is indeed incredibly slow. The GoodCaching version offers a good reduction in computational time; this is because the previous version had to store a large amount of data (the entire $p*T$ by $p$ array) which would overflow the stack, reducing efficiency of retrieving data. The GoodCaching version avoids this by generating proposals within each block,  where they are used and then overwriting them when no longer needed. The fact that the user time for FullParallel is much greater than the elapsed time is a sign that the parallelisation is working (although not the most efficient).
+
+
+
+%As mentioned in Section 2, this algorithm is intended for the case when evaluating the target density is computationally expensive. This is the case in our next example, where we chose (unnormalised) target density given by $$f_N(x)= \sum_{n=1}^N \frac{e^{-0.001nx^2}\cos^2(nx)}{n^2}$$ where we chose $N=10000$. It is clear, by choice of denominator, that this is indeed an unnormalised density.
+
+\begin{thebibliography}{20}
+	\bibitem{Jacob}
+	Jacob, P., Robert C.P. and Smith, M.H.
+	(2011)
+	Using parallel computation to improve independent Metropolis-Hastings based estimation.
+	\textit{Journal of Computational and Graphical Statistics}, 20:3, 616-635.
+	
+\end{thebibliography}
+\end{document}

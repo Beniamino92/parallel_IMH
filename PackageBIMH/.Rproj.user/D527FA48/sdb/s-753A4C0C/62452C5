@@ -1,0 +1,17 @@
+{
+    "contents" : "Package: PackageBIMH\nType: Package\nTitle: What the Package Does (Title Case)\nVersion: 0.1\nDate: 2015-12-02\nAuthor: Hadj-Amar B., Jewson J., Wang A.\nMaintainer: Paul Vanetti <P.Vanetti@spc.ox.ac.uk>\nDescription: Block IMH\nLicense: OxWaSp\nLazyData: TRUE\n",
+    "created" : 1449077252921.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "2602150182",
+    "id" : "62452C5",
+    "lastKnownWriteTime" : 1449077570,
+    "path" : "~/Desktop/PackageBIMH/PackageBIMH/DESCRIPTION",
+    "project_path" : "DESCRIPTION",
+    "properties" : {
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "type" : "dcf"
+}

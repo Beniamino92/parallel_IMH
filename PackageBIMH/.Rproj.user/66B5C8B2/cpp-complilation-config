@@ -1,0 +1,11 @@
+{
+    "args" : [
+        "-I/usr/local/lib64/R-3.2/include",
+        "-DNDEBUG",
+        "-I/usr/local/include",
+        "-fpic"
+    ],
+    "hash" : "14490775701448991758",
+    "is_cpp" : false,
+    "pch" : ""
+}

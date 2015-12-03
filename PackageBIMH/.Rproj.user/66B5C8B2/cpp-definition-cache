@@ -1,0 +1,137 @@
+[
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/FullParallel_BIMH_mixNorm.c",
+                "kind" : 6,
+                "line" : 12,
+                "name" : "FullParallel_BIMH_mixNorm(double *restrict, int *restrict, int *restrict, double (*restrict)[(*pp) + 1], double (*restrict)[(*pp) + 1], double *restrict, double *restrict, double *restrict)",
+                "parent_name" : "",
+                "usr" : "c:@F@FullParallel_BIMH_mixNorm"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/FullParallel_BIMH_mixNorm.c",
+        "file_last_write" : 1449059650
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/GoodCaching_serial_BIMH_mixNorm.c",
+                "kind" : 6,
+                "line" : 12,
+                "name" : "GoodCaching_serial_BIMH_mixNorm(double *restrict, int *restrict, int *restrict, double (*restrict)[(*pp) + 1], double (*restrict)[(*pp) + 1], double *restrict, double *restrict, double *restrict)",
+                "parent_name" : "",
+                "usr" : "c:@F@GoodCaching_serial_BIMH_mixNorm"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/GoodCaching_serial_BIMH_mixNorm.c",
+        "file_last_write" : 1449069556
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/IMH_mixNorm.c",
+                "kind" : 6,
+                "line" : 8,
+                "name" : "IMH_mixNorm(int *, double *, double *, double *, double *)",
+                "parent_name" : "",
+                "usr" : "c:@F@IMH_mixNorm"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/IMH_mixNorm.c",
+        "file_last_write" : 1449071506
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/Paper_serial_BIMH_mixNorm.c",
+                "kind" : 6,
+                "line" : 10,
+                "name" : "Paper_serial_BIMH_mixNorm(double *, int *, int *, double (*)[((*pp) * (*pb)) + 1], double (*)[((*pp) * (*pb)) + 1], double *, double *, double *)",
+                "parent_name" : "",
+                "usr" : "c:@F@Paper_serial_BIMH_mixNorm"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/Paper_serial_BIMH_mixNorm.c",
+        "file_last_write" : 1449066486
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 6,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/ParallelProposal_BIMH_mixNorm.c",
+                "kind" : 6,
+                "line" : 12,
+                "name" : "ParallelProposal_BIMH_mixNorm(double *restrict, int *restrict, int *restrict, double (*restrict)[((*pp) * (*pb)) + 1], double (*restrict)[((*pp) * (*pb)) + 1], double *restrict, double *restrict, double *restrict)",
+                "parent_name" : "",
+                "usr" : "c:@F@ParallelProposal_BIMH_mixNorm"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/ParallelProposal_BIMH_mixNorm.c",
+        "file_last_write" : 1449069234
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 8,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/distributions.c",
+                "kind" : 6,
+                "line" : 8,
+                "name" : "distr_target(double)",
+                "parent_name" : "",
+                "usr" : "c:@F@distr_target"
+            },
+            {
+                "column" : 8,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/distributions.c",
+                "kind" : 6,
+                "line" : 13,
+                "name" : "distr_proposal(double)",
+                "parent_name" : "",
+                "usr" : "c:@F@distr_proposal"
+            },
+            {
+                "column" : 8,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/distributions.c",
+                "kind" : 6,
+                "line" : 18,
+                "name" : "random_proposal(gsl_rng *)",
+                "parent_name" : "",
+                "usr" : "c:@F@random_proposal"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/distributions.c",
+        "file_last_write" : 1449052612
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/distributions.h",
+        "file_last_write" : 1448989772
+    },
+    {
+        "definitions" : [
+            {
+                "column" : 8,
+                "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/minimum.c",
+                "kind" : 6,
+                "line" : 5,
+                "name" : "minimum(double, double)",
+                "parent_name" : "",
+                "usr" : "c:@F@minimum"
+            }
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/minimum.c",
+        "file_last_write" : 1448989772
+    },
+    {
+        "definitions" : [
+        ],
+        "file" : "/homes/hadjamar/Desktop/PackageBIMH/src/minimum.h",
+        "file_last_write" : 1448989772
+    }
+]

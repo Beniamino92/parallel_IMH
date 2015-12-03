@@ -1,0 +1,18 @@
+{
+    "contents" : "# GoodCaching_serial_BIMH_mixNorm\nGoodCaching_serial_BIMH_mixNorm = function(x_start, p, b)\n{\n\n  ans = .C(\"GoodCaching_serial_BIMH_mixNorm\", as.double(x_start), as.integer(p),\n           as.integer(b), as.double(matrix(0, nrow = p, ncol = p +1)),\n           as.double(matrix(0, nrow = p, ncol = p +1)),\n           as.double(0), as.double(numeric(b * p + 1)),\n           as.double(numeric(b * p +1)))\n\n  return(list(est = ans[[6]],\n              MC = ans[[7]]))\n}\n\n\n# diagn_GoodCaching_serial_BIMH_mixNorm\ndiagn_GoodCaching_serial_BIMH_mixNorm = function(x_start, p, b)\n{\n  time = system.time(out <- GoodCaching_serial_BIMH_mixNorm(x_start, p, b))\n\n  par(mfrow=c(2, 2))\n  grid = (-900:900)/10\n\n  hist(out$MC, breaks = p/2 + 20, freq = F,\n       col = \"pink\", main = \"Histogram MC\", xlab = \"\",\n       ylim = c(0, 0.33), ylab = \"\")\n  lines(grid, 0.3*dnorm(grid) + 0.7*dnorm(grid, 5), col = \"blue\", lwd = 3)\n\n  plot(1:length(out$MC), cumsum(out$MC)/(1:length(out$MC)),\n       type = \"l\", lwd = 1, main = \"Running means\", ylab = \"\", xlab = \"t\")\n  abline(h = 3.5, col = \"green\", lwd = 1, lty = 3)\n  est = out$est\n\n  plot(1:length(out$MC), out$MC, type = \"l\", col = \"red\", xlab = \"t\",\n       main = \"Traceplot MC\", ylab = \"\")\n\n  plot(0:400, acf(out$MC, lag = 400, plot = F)$acf, type = \"s\",\n       main = \"ACF\", xlab = \"Lag\", lwd = 2, col = \"green\", ylab = \"\")\n\n  return(list(\"estimate\"=est,\"system.time\"=time))\n}\n",
+    "created" : 1449069458511.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3129307150",
+    "id" : "815BBDE",
+    "lastKnownWriteTime" : 1449070025,
+    "path" : "~/Desktop/PackageBIMH/PackageBIMH/R/GoodCaching_serial_BIMH_mixNorm.R",
+    "project_path" : "R/GoodCaching_serial_BIMH_mixNorm.R",
+    "properties" : {
+        "tempName" : "Untitled2"
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

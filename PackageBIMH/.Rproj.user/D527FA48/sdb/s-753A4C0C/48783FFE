@@ -1,0 +1,17 @@
+{
+    "contents" : "\\name{PackageBIMH}\n\\alias{PackageBIMH}\n\\alias{BIMH}\n\\docType{package}\n\\title{\nPackage for Block Independent Metroplis-Hastings sampler targetting normal mixture, for both parallelised and serial implementation.\n}\n\n\\details{\n\\tabular{ll}{\nPackage: \\tab PackageBIMH\\cr\nType: \\tab Package\\cr\nVersion: \\tab 0.1\\cr\nDate: \\tab 2015-12-02\\cr\nLicense: \\tab OxWaSP\\cr\n}\n}\n\\references{\n\"Using parallel computation to improve independent Metropolis-Hastings based estimation\" P.Jacob, C.P Robert, M.H Smith 2011.\n}\n\n\\author{\nHadj-Amar B., Jewson J., Wang A.\n}\n\n\\examples{\n\\item GoodCaching_serial_BIMH_mixNorm(-2, 96, 1000)\n\\item diagn_GoodCaching_serial_BIMH_mixNorm(-2, 96, 1000)\n}\n",
+    "created" : 1449077075718.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3190911107",
+    "id" : "48783FFE",
+    "lastKnownWriteTime" : 1449077385,
+    "path" : "~/Desktop/PackageBIMH/PackageBIMH/man/PackageBIMH.Rd",
+    "project_path" : "man/PackageBIMH.Rd",
+    "properties" : {
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "type" : "r_doc"
+}

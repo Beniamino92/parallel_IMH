@@ -1,0 +1,18 @@
+{
+    "contents" : "\\name{serial_BIMH_mixNorm_R}\n\\alias{serial_BIMH_mixNorm_R}\n\n\\title{\nBlock Independent Metropolis-Hastings sampler targetting a normal mixture, as describeed in the paper cited. Alternatively of all the other functions in this package (which are implemented in C), this is implemented in R.\n}\n\\description{\nGiven a initial value x_0, the algorithm generate a Markov-Chain (MC) with invariant distrubution a mixture of normal( 0.3*N(0, 1) + 0.7*N(5, 1)), of length T, where T = p * b. This algorithm used a block-wise independent Metropolis-Hastings method.The algorithm returns also an estimate (est) of the mean.\n\nWe provide two functions, one for running the algorithm, and the second to osberve the behaviour of the output (considering also the time). The diagnostic includes the histogram of the MC, the running estimate of the mean, the traceplot and the ACF plot.\n}\n\\usage{\n\\item serial_BIMH_mixNorm_R(x_start, p, b)\n\\item diagn_serial_BIMH_mixNorm_R(x_start, p, b)\n}\n\n\\arguments{\n \\item{x_start}{Initial value for the Markov Chain}\n \\item{p}{Number of chains in each block}\n \\item{b}{Number of blocks}\n}\n\n\\value{\n\\item{serial_BIMH_mixNorm_R Returns: Markov-Chain of length T = (b * p ), estimate for mean.\n\\item{diagn_serial_BIMH_mixNorm_R} Returns: the time it takes to run the algorithm, the estimate for mean, and the 4 diagnostic graph mentioned above.\n}\n\n\\references{\n\"Using parallel computation to improve independent Metropolis-Hastings based estimation\" P.Jacob, C.P Robert, M.H Smith 2011.\n}\n\n\\author{\nHadj-Amar B., Jewson J., Wang A.\n}\n\n\\examples{\n\\item serial_BIMH_mixNorm_R(-2, 96, 1000)\n\\item diagn_serial_BIMH_mixNorm_R(-2, 96, 1000)\n}\n",
+    "created" : 1449076016162.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3670928794",
+    "id" : "9AF7187C",
+    "lastKnownWriteTime" : 1449077046,
+    "path" : "~/Desktop/PackageBIMH/PackageBIMH/man/serial_BIMH_mixNorm_R.Rd",
+    "project_path" : "man/serial_BIMH_mixNorm_R.Rd",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "type" : "r_doc"
+}

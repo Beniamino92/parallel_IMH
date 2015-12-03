@@ -1,0 +1,52 @@
+#include<stdio.h>
+#include<gsl/gsl_rng.h>
+#include<gsl/gsl_randist.h>
+
+#include "distributions.h"
+#include "minimum.h"
+ 
+void IMH_mixNorm(int* N, double* X, double* W, double* pest, double* px_start )
+{
+
+
+  const gsl_rng_type* T;
+  gsl_rng* r;
+  
+  T = gsl_rng_default;
+  r = gsl_rng_alloc(T);
+  
+  int i,M,m;
+  M = *N;
+  double est=0.0;
+  double x_start;
+  x_start = *px_start;
+  double X_prop[M], W_prop[M];
+  
+  X[0] = x_start;
+  W[0] = distr_target(X[0])/distr_proposal(X[0]);
+    
+    //proposals //weight
+  for(i=0;i<(M-1);++i){
+    X_prop[i] =  random_proposal(r);
+    W_prop[i] = distr_target(X_prop[i])/distr_proposal(X_prop[i]);
+  }
+  
+  for( m = 0; m < ((M)-1); m++) {
+    if(gsl_rng_uniform(r) <= minimum(1, (W_prop[m]/W[m]))) {
+      X[m+1] = X_prop[m];
+      W[m+1] = W_prop[m];
+      
+    }
+    else {
+      X[m+1] = X[m];
+      W[m+1] = W[m];
+    }
+  }
+
+  for(i=0;i<M;i++){
+    est += X[i];
+  }
+  est /= M;
+  *pest = est;
+}
+

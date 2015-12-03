@@ -1,0 +1,17 @@
+{
+    "contents" : "#include <stdio.h>\n#include <gsl/gsl_rng.h>\n#include <gsl/gsl_randist.h>\n\n#include \"distributions.h\"\n#include \"minimum.h\"\n\n\n\nvoid Paper_serial_BIMH_mixNorm(double*  px_0, int*  pp, int*  pb, \n\t\t      double (*x_mat)[((*pp)*(*pb))+1], double (*w_mat)[((*pp)*(*pb))+1],\n\t\t      double* pest, double*  x_chain, double*  w_chain)\n{\n  // initalising pointers\n  double x_0;\n  size_t p, b;\n  x_0 = *px_0;\n  p = (size_t)*pp;\n  b = (size_t)*pb;\n  \n  //Creating memory for random number generation \n  const gsl_rng_type* T_;\n  gsl_rng* r;\n  T_ = gsl_rng_default;\n  r = gsl_rng_alloc(T_);\n  \n  //Lenght of the chain\n  size_t T = p * b;\n  \n  // Proposed values and weights.\n  double y[T];\n  double w[T];\t\n  \n  // Placeholder for permutation.\n  int perm[p];\n  \n  // For each block IMH.\n  double x_prop[p];\n  double w_prop[p];\n  \n  // Starting values \n  double x_start;\n  double w_start;\n  \n  // Indexes.\n  size_t i, j, m, l, k, n, q;\n  double est = 0.0;\n  \n  // Initialisation.\n  for(i = 0; i < p; i++) {\n    x_mat[i][0] = x_0; \n    w_mat[i][0] = distr_target(x_0)/distr_proposal(x_0);\n  }\n  x_chain[0] = x_0;\n  w_chain[0] = w_mat[0][0];\n  \n  // Sampling the proposals and calculating their weights-parralelised.\n  for(i = 0; i < T; i++){\n    y[i] = random_proposal(r);\n    w[i] = distr_target(y[i])/distr_proposal(y[i]);\t\n  }\n  \n  // For each block.\n  for(i = 0; i < b; i++) {\n    for(l = 0; l < p; ++l) {\n      x_prop[l] = y[(i*(p)+l)];\n      w_prop[l] = w[(i*(p)+l)];\n    }\n    x_start = x_chain[(i*(p))]; \n    w_start = w_chain[(i*(p))];\n    \n    for(k = 0; k < p; k++) {\n      // Accepting or rejecting the first step.\n      \n      //Generate random permutation using Knuth shuffle\n      for (n = 0; n < p; n++) {\n\tq = gsl_rng_uniform_int(r, (n+1)); //returns random int between 0 and n inclusive\t      \n\tperm[n] = perm[q];\t\t      \n\tperm[q] = n;\n      }\n      \n      //Print the permutation\n      for (l = 0; l < p; l++) {\n      }\n      \n      if(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[0]]/w_start))){\n\tx_mat[k][(i*(p))+1] = x_prop[perm[0]];\n\tw_mat[k][(i*(p))+1] = w_prop[perm[0]];\n      }\n      else{\n\tx_mat[k][(i*(p))+1] = x_start;\n\tw_mat[k][(i*(p))+1] = w_start;\n      }\n      \n      //For each column in our block the MC.\n      for(m = 0; m < ((p)-1); ++m) {\n\t\n\tif(gsl_rng_uniform(r) <= minimum(1, (w_prop[perm[m+1]]/w_mat[k][((i*(p))+1+m)]))) {\n\t  x_mat[k][((i*(p))+2+m)] = x_prop[perm[m+1]];\n\t  w_mat[k][((i*(p))+2+m)] = w_prop[perm[m+1]];\n\t}\n\telse {\n\t  x_mat[k][((i*(p))+2+m)] = x_mat[k][((i*(p))+1+m)];\n\t  w_mat[k][((i*(p))+2+m)] = w_mat[k][((i*(p))+1+m)];\n\t}\n      }\n    }\n    \n    //Choosing chain\n    j = gsl_rng_uniform_int(r,(p));\n    \n    for(l = 0; l < p; ++l) {\n      x_chain[((i*(p))+1+l)] = x_mat[j][((i*(p))+1+l)];\n      w_chain[((i*(p))+1+l)] = w_mat[j][((i*(p))+1+l)];\n    }\n  }\n  \n  for(l = 0; l < (T+1); ++l) {\n    for(m = 0; m < p; ++m) {\n      est += x_mat[m][l];\n    }\n  }\n  est /= (T+1)*p;\n  *pest = est;\n}\n\n\n  \n",
+    "created" : 1449068722196.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "1759811110",
+    "id" : "DC0B2FCE",
+    "lastKnownWriteTime" : 1449066486,
+    "path" : "~/Desktop/PackageBIMH/PackageBIMH/src/Paper_serial_BIMH_mixNorm.c",
+    "project_path" : "src/Paper_serial_BIMH_mixNorm.c",
+    "properties" : {
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "type" : "c"
+}

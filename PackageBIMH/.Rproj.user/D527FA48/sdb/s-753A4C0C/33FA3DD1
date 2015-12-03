@@ -1,0 +1,18 @@
+{
+    "contents" : "# IMH_mixNorm\nIMH_mixNorm = function(x_start, p, b)\n{\n\n  ans = .C(\"IMH_mixNorm\", as.integer(p * b), as.double(numeric(p * b)),\n           as.double(numeric(p * b)), as.double(0.0), as.double(x_start))\n\n  return(list(est = ans[[4]],\n              MC = ans[[2]]))\n}\n\n\n# diagn_IMH_mixNorm\ndiagn_IMH_mixNorm = function(x_start, p, b)\n{\n  time = system.time(out <- IMH_mixNorm(x_start, p, b))\n\n  par(mfrow=c(2, 2))\n  grid = (-900:900)/10\n\n  hist(out$MC, breaks = p/2 + 20, freq = F,\n       col = \"pink\", main = \"Histogram MC\", xlab = \"\",\n       ylim = c(0, 0.33), ylab = \"\")\n  lines(grid, 0.3*dnorm(grid) + 0.7*dnorm(grid, 5), col = \"blue\", lwd = 3)\n\n  plot(1:length(out$MC), cumsum(out$MC)/(1:length(out$MC)),\n       type = \"l\", lwd = 1, main = \"Running means\", ylab = \"\", xlab = \"t\")\n  abline(h = 3.5, col = \"green\", lwd = 1, lty = 3)\n  est = out$est\n\n  plot(1:length(out$MC), out$MC, type = \"l\", col = \"red\", xlab = \"t\",\n       main = \"Traceplot MC\", ylab = \"\")\n\n  plot(0:400, acf(out$MC, lag = 400, plot = F)$acf, type = \"s\",\n       main = \"ACF\", xlab = \"Lag\", lwd = 2, col = \"green\", ylab = \"\")\n\n  return(list(\"estimate\"=est,\"system.time\"=time))\n}\n",
+    "created" : 1449071618931.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3831584554",
+    "id" : "33FA3DD1",
+    "lastKnownWriteTime" : 1449072078,
+    "path" : "~/Desktop/PackageBIMH/PackageBIMH/R/IMH_mixNorm.R",
+    "project_path" : "R/IMH_mixNorm.R",
+    "properties" : {
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "type" : "r_source"
+}

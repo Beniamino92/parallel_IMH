@@ -1,0 +1,10 @@
+Package: PackageBIMH
+Type: Package
+Title: What the Package Does (Title Case)
+Version: 0.1
+Date: 2015-12-02
+Author: Hadj-Amar B., Jewson J., Wang A.
+Maintainer: Paul Vanetti <P.Vanetti@spc.ox.ac.uk>
+Description: Block IMH
+License: OxWaSp
+LazyData: TRUE
